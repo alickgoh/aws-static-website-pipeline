@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      # Use a specific version of terraform
+      terraform: 1.0.0
+  pre_build:
+    commands:
+      # Initialize Terraform with the S3 backend
+      - terraform init
+  build:
+    commands:
+      # Run terraform plan and apply
+      - terraform plan
+      - terraform apply --auto-approve
+  post_build:
+    commands:
+      # Get the website bucket name from terraform output and sync files
+      - BUCKET_NAME=$(terraform output -raw website_url | cut -d'/' -f1 | cut -d'.' -f2-)
+      - echo "Syncing files to S3 bucket: $BUCKET_NAME"
+      - aws s3 sync . s3://$BUCKET_NAME --exclude ".git/*" --exclude "*.tf" --exclude "buildspec.yml"
+      - echo "Deployment complete. Visit http://$(terraform output -raw website_url)"
