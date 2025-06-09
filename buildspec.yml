@@ -23,6 +23,4 @@ phases:
 
   post_build:
     commands:
-      - "echo Terraform Plan complete. In a deploy stage, you would run 'terraform apply'."
-      # In a separate "Deploy" stage, the command would be:
-      # - terraform apply -input=false tfplan
+      - "echo Terraform Plan complete."
