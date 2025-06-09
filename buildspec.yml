@@ -3,17 +3,26 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      ruby: 2.6
     commands:
-      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip
-      - unzip terraform.zip && mv terraform /usr/local/bin/
+      - "wget https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip"
+      - "unzip terraform_1.5.7_linux_amd64.zip"
+      - "mv terraform /usr/local/bin/"
+
   pre_build:
     commands:
-      - terraform init
+      - "echo Initializing Terraform..."
+      - "terraform init"
+
   build:
     commands:
-      - terraform plan
-      - terraform apply -auto-approve
-artifacts:
-  files:
-    - '**/*'
+      - "echo Running Terraform Plan..."
+      - "terraform plan -out=tfplan"
+      # For pull request validation, you can add a plan with detailed exit codes
+      # - terraform plan -detailed-exitcode
+
+  post_build:
+    commands:
+      - "echo Terraform Plan complete. In a deploy stage, you would run 'terraform apply'."
+      # In a separate "Deploy" stage, the command would be:
+      # - terraform apply -input=false tfplan
